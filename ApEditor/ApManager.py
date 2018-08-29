@@ -146,45 +146,58 @@ def changeApplication(source_filepath,target_filepath,application_name):
 
         cp_data.extend(data_hex[config.get_value('APPLICATIONNAMEINDEX')+4+4+4+4+4:])
     elif config.get_value('APPLICATIONNAMEFLAG') ==0:
-        #此时application中没有android:name属性，新增一个属性
+        # 此时application中没有android:name属性，新增一个属性
         cp_data.extend(data_hex[config.get_value('LASTSTRINGINDEX'):config.get_value('APPLICATIONPC')])
-        #type不变
-        cp_data.extend(data_hex[config.get_value('APPLICATIONPC'):config.get_value('APPLICATIONPC')+4])
-        #size+5*4
-        old_application_size = ApUtils.printhex(ApUtils.little_endian(data_hex[config.get_value('APPLICATIONPC')+4:config.get_value('APPLICATIONPC')+8]))
-        new_application_size = int(old_application_size,16) +5*4
+        # type不变
+        cp_data.extend(data_hex[config.get_value('APPLICATIONPC'):config.get_value('APPLICATIONPC') + 4])
+        # size+5*4
+        old_application_size = ApUtils.printhex(ApUtils.little_endian(
+            data_hex[config.get_value('APPLICATIONPC') + 4:config.get_value('APPLICATIONPC') + 8]))
+        new_application_size = int(old_application_size, 16) + 5 * 4
         cp_data.extend(ApUtils.encodehex(new_application_size))
-        #linenumber+unknown+namespace+name+flag不变
-        cp_data.extend(data_hex[config.get_value('APPLICATIONPC')+8:config.get_value('APPLICATIONPC') + 28])
-        #Attribute count +1
-        old_attr_count = ApUtils.printhex(ApUtils.little_endian(data_hex[config.get_value('APPLICATIONPC')+28:config.get_value('APPLICATIONPC')+32]))
-        new_attr_count = int(old_attr_count,16) +1
+        # linenumber+unknown+namespace+name+flag不变
+        cp_data.extend(data_hex[config.get_value('APPLICATIONPC') + 8:config.get_value('APPLICATIONPC') + 28])
+        # Attribute count +1
+        old_attr_count = ApUtils.printhex(ApUtils.little_endian(
+            data_hex[config.get_value('APPLICATIONPC') + 28:config.get_value('APPLICATIONPC') + 32]))
+        new_attr_count = int(old_attr_count, 16) + 1
         cp_data.extend(ApUtils.encodehex(new_attr_count))
-        #class attribute
+        # class attribute
         cp_data.extend(data_hex[config.get_value('APPLICATIONPC') + 32:config.get_value('APPLICATIONPC') + 36])
 
-        #接下来只需要解析一个属性即可，为了初始化一些基本字段
+        # 接下来只需要解析一个属性即可，为了初始化一些基本字段
         old_attr_namespace = data_hex[config.get_value('APPLICATIONPC') + 36:config.get_value('APPLICATIONPC') + 40]
-        #定位到name在Stringpool的index
+        # 定位到name在Stringpool的index
         name_index = config.global_list['STRINGPOOL'].index("name")
 
-        #拷贝剩下的属性
-        attr_index = config.get_value('APPLICATIONPC') + 36 +5*int(old_attr_count,16)*4
-        cp_data.extend(data_hex[config.get_value('APPLICATIONPC') + 36:attr_index])
-        #新增name属性
-        #namespace
+        # 这里属性是有一定顺序的，在name前面有theme，label，icon
+        count = 0
+        for j in range(int(old_attr_count, 16)):
+            attr_num = int(ApUtils.printhex(ApUtils.little_endian(data_hex[config.get_value(
+                'APPLICATIONPC') + 36 + 4 + 4 * j * 5:config.get_value('APPLICATIONPC') + 36 + 4 + 4 * j * 5 + 4])), 16)
+            attr_name = config.global_list['STRINGPOOL'][attr_num]
+            if attr_name == "theme" or attr_name == "label" or attr_name == "icon":
+                count += 1
+                # 拷贝这些前面的属性
+                cp_data.extend(data_hex[config.get_value('APPLICATIONPC') + 36 + 4 * j * 5:config.get_value(
+                    'APPLICATIONPC') + 36 + 4 * j * 5 + 20])
+
+        # 新增name属性
+        # namespace
         cp_data.extend(old_attr_namespace)
-        #name
+        # name
         cp_data.extend(ApUtils.encodehex(name_index))
-        #valuestr
+        # valuestr
         cp_data.extend(ApUtils.encodehex(new_stringchunk_count - 1))
-        #type,这里是String固定type
-        cp_data.extend(["08","00","00","03"])
-        #data
+        # type,这里是String固定type
+        cp_data.extend(["08", "00", "00", "03"])
+        # data
         cp_data.extend(ApUtils.encodehex(new_stringchunk_count - 1))
 
-        #剩下的拷贝
-        cp_data.extend(data_hex[attr_index:])
+        # 拷贝剩下的属性
+        attr_index_start = config.get_value('APPLICATIONPC') + 36 + 5 * count * 4
+        attr_index = config.get_value('APPLICATIONPC') + 36 + 5 * int(old_attr_count, 16) * 4
+        cp_data.extend(data_hex[attr_index_start:attr_index])
     else:
         print "[ERROR]There is something wrong with application resolve!!!"
         exit(-1)

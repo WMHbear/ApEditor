@@ -1,6 +1,6 @@
 # ApEditor
 
-Application Name修改器（Python2）
+Application Name修改器（Python2、3）
 
 ## 项目介绍
 
@@ -62,6 +62,10 @@ Application Name修改器（Python2）
 * 版本升级
 
 *此工具使用python2编写，若想升级至python3，只需修改ApUtils.apprint中的打印函数及ApManager中的print函数即可*
+
+* 更新
+
+*2018/8/29更新：已经支持python3，涉及到的一些打印和编码已经修改，python3对应代码在ApEditor3中*
 
 * 解析时部分字符串无法解析
 
