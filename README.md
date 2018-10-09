@@ -22,8 +22,8 @@ Application Name修改器（Python2、3）
 
     ```
     source_filepath    : 需要修改的AndroidManifest.xml文件路径
-    target_filepath      : 修改后的AndroidManifest.xml文件路径
-    application_name : 需要替换的Application Name
+    target_filepath    : 修改后的AndroidManifest.xml文件路径
+    application_name   : 需要替换的Application Name
     ```
     
 ### 解析AndroidManifest.xml功能
@@ -66,6 +66,8 @@ Application Name修改器（Python2、3）
 * 更新
 
 *2018/8/29更新：已经支持python3，涉及到的一些打印和编码已经修改，python3对应代码在ApEditor3中*
+
+*2018/10/9更新：修复bug：部分AndroidManifest.xml文件使用xml资源文件样式，其字符串为1位utf-8编码，导致解析失败*
 
 * 解析时部分字符串无法解析
 
