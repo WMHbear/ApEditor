@@ -120,8 +120,15 @@ def changeApplication(source_filepath,target_filepath,application_name):
     #String off sets
     cp_data.extend(data_hex[config.get_value('STRINGPOOLOFFSETINDEX')+4:config.get_value('LASTSTRINGOFFSETSINDEX')+4])
     old_laststring_offsets = ApUtils.printhex(ApUtils.little_endian(data_hex[config.get_value('LASTSTRINGOFFSETSINDEX'):config.get_value('LASTSTRINGOFFSETSINDEX')+4]))
-    new_laststring_offsets = int(old_laststring_offsets, 16) +(config.get_value('LASTSTRINGLEN')+2)*2
-    cp_data.extend(ApUtils.encodehex(new_laststring_offsets))
+    if config.get_value('XMLFLAG') == 0:
+        new_laststring_offsets = int(old_laststring_offsets, 16) +(config.get_value('LASTSTRINGLEN')+2)*2
+        cp_data.extend(ApUtils.encodehex(new_laststring_offsets))
+    elif config.get_value('XMLFLAG') == 1:
+        new_laststring_offsets = int(old_laststring_offsets, 16) + (config.get_value('LASTSTRINGLEN') + 1 +2)
+        cp_data.extend(ApUtils.encodehex(new_laststring_offsets))
+    else:
+        print "[Error]Something wrong with XMLFLAG!"
+        exit(-1)
 
     cp_data.extend(data_hex[config.get_value('LASTSTRINGOFFSETSINDEX')+4:config.get_value('LASTSTRINGINDEX')])
     #sting
@@ -198,6 +205,9 @@ def changeApplication(source_filepath,target_filepath,application_name):
         attr_index_start = config.get_value('APPLICATIONPC') + 36 + 5 * count * 4
         attr_index = config.get_value('APPLICATIONPC') + 36 + 5 * int(old_attr_count, 16) * 4
         cp_data.extend(data_hex[attr_index_start:attr_index])
+
+        # 剩下的拷贝
+        cp_data.extend(data_hex[attr_index:])
     else:
         print "[ERROR]There is something wrong with application resolve!!!"
         exit(-1)
@@ -213,8 +223,8 @@ def changeApplication(source_filepath,target_filepath,application_name):
 
 if __name__ == '__main__':
     #测试用
-    r=r"/home/xxxx/AndroidManifest.xml"
-    r1 = r"/home/oooo/AndroidManifest.xml"
-    # resolver(r)
+    r=r"/home/xxx/ooo/AndroidManifest.xml"
+    r1 = r"/home/xxx/ooo/AndroidManifest_new.xml"
+    resolver(r)
     sr="com.test.FirstApplication"
     changeApplication(r,r1,sr)
