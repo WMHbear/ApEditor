@@ -123,6 +123,7 @@ def apprint(print_string, default=False):
 # 插入字符串编码
 def encodeutf(string):
     str_data = []
+    str_count = 0
     if config.get_value('XMLFLAG') == 0:
         str_data.append(hex(len(string)))
         str_data.append(hex(0))
@@ -140,6 +141,13 @@ def encodeutf(string):
             encod_str = hex(ord(str_i.encode("utf-8")))
             str_data.append(encod_str)
         str_data.append(hex(0))
+    #和4倍对齐，所以最多循环3次
+    for i in range(3):
+        if (str_count+1+2)%4 == 0:
+            return str_data
+        else:
+            str_count += 1
+            str_data.append(hex(0))
     # print str_data
     return str_data
 

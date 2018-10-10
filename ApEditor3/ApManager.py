@@ -83,12 +83,12 @@ def changeApplication(source_filepath, target_filepath, application_name):
     # 用于存储修改之后的AM文件
     cp_data = []
 
-    # 解析要修改的字符串
-    data_string = ApUtils.encodeutf(application_name)
-
     # 解析AM文件
     data_hex = resolver(source_filepath)
     print("[ApEditor]Begin to change application")
+
+    # 解析要修改的字符串
+    data_string = ApUtils.encodeutf(application_name)
 
     # 处理头部
     cp_data.extend(data_hex[0:config.get_value('FILSIZEINDEX')])

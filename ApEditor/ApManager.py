@@ -82,12 +82,12 @@ def changeApplication(source_filepath,target_filepath,application_name):
     #用于存储修改之后的AM文件
     cp_data=[]
 
-    #解析要修改的字符串
-    data_string = ApUtils.encodeutf(application_name)
-
     #解析AM文件
     data_hex = resolver(source_filepath)
     print "[ApEditor]Begin to change application"
+
+    # 解析要修改的字符串
+    data_string = ApUtils.encodeutf(application_name)
 
     #处理头部
     cp_data.extend(data_hex[0:config.get_value('FILSIZEINDEX')])
@@ -223,8 +223,8 @@ def changeApplication(source_filepath,target_filepath,application_name):
 
 if __name__ == '__main__':
     #测试用
-    r=r"/home/xxx/ooo/AndroidManifest.xml"
+    r=r"/home/wmh/桌面/bug/apeditor/AndroidManifest.xml"
     r1 = r"/home/xxx/ooo/AndroidManifest_new.xml"
     resolver(r)
-    sr="com.test.FirstApplication"
-    changeApplication(r,r1,sr)
+    #sr="com.test.FirstApplication"
+    #changeApplication(r,r1,sr)
