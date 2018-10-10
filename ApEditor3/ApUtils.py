@@ -123,14 +123,23 @@ def apprint(print_string, default=False):
 # 插入字符串编码
 def encodeutf(string):
     str_data = []
-    str_data.append(hex(len(string)))
-    str_data.append(hex(0))
-    for str_i in string:
-        encod_str = hex(ord(str_i.encode("utf-8")))
-        str_data.append(encod_str)
+    if config.get_value('XMLFLAG') == 0:
+        str_data.append(hex(len(string)))
         str_data.append(hex(0))
-    str_data.append(hex(0))
-    str_data.append(hex(0))
+        for str_i in string:
+            encod_str = hex(ord(str_i.encode("utf-8")))
+            str_data.append(encod_str)
+            str_data.append(hex(0))
+        str_data.append(hex(0))
+        str_data.append(hex(0))
+    elif config.get_value('XMLFLAG') == 1:
+        #此时为XML资源文件格式
+        str_data.append(hex(len(string)))
+        str_data.append(hex(len(string)))
+        for str_i in string:
+            encod_str = hex(ord(str_i.encode("utf-8")))
+            str_data.append(encod_str)
+        str_data.append(hex(0))
     # print str_data
     return str_data
 

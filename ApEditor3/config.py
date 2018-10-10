@@ -55,7 +55,8 @@ global_param = {
     'APPLICATIONNAMEFLAG': 0,
     'APPLICATIONNAMEINDEX': 0,
     'TAGCOUNTSTAR': 0,
-    'TAGCOUNTEND': 0
+    'TAGCOUNTEND': 0,
+    'XMLFLAG':0
 }
 
 # 全局list

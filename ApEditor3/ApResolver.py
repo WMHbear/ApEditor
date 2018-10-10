@@ -54,6 +54,10 @@ def am_stringchunk(data, pc):
 
     # Unknown（4）
     Unknown = ApUtils.little_endian(data[pc + 16:pc + 20])
+    #如果此时Unknown为0x00010000也就是256，说明此时使用的为xml编码格式
+    if int(ApUtils.printhex(Unknown),16) == 256:
+        ApUtils.apprint("[String]This is XML Flag!")
+        config.set_value('XMLFLAG', 1)
 
     # 字符串池的偏移值（4）
     StringPoolOffset = ApUtils.little_endian(data[pc + 20:pc + 24])
@@ -93,27 +97,52 @@ def am_stringchunk(data, pc):
 
     # =======开始解析字符串===========#
     count = 0
-    for index in config.global_list['STRINGOFFSETS']:
-        str_index = pc + int(ApUtils.printhex(config.get_value('STRINGPOOLOFFSET')), 16) + int(ApUtils.printhex(index),
-                                                                                               16)
-        str_len = int(ApUtils.printhex(ApUtils.little_endian(data[str_index:str_index + 2])), 16)
-        str_end = data[str_index + (str_len + 1) * 2:str_index + (str_len + 1) * 2 + 2]
-        # utf-8编码
-        try:
-            string = ApUtils.read_asc(data[str_index + 2:str_index + 2 + str_len * 2])\
-                .encode("utf-8").decode('unicode_escape')
-        except:
+    if config.get_value('XMLFLAG') == 0:
+        for index in config.global_list['STRINGOFFSETS']:
+            str_index = pc + int(ApUtils.printhex(config.get_value('STRINGPOOLOFFSET')), 16) + int(ApUtils.printhex(index),
+                                                                                                   16)
+            str_len = int(ApUtils.printhex(ApUtils.little_endian(data[str_index:str_index + 2])), 16)
+            str_end = data[str_index + (str_len + 1) * 2:str_index + (str_len + 1) * 2 + 2]
+            # utf-8编码
             try:
                 string = ApUtils.read_asc(data[str_index + 2:str_index + 2 + str_len * 2])\
                     .encode("utf-8").decode('unicode_escape')
             except:
-                string = "String resolve error !!"
-        config.set_value('STRINGCHUNKEND', str_index + 2 + str_len * 2 + 2)
-        ApUtils.apprint(" [StringPool][" + str(count) + "]" + string)
-        config.global_list['STRINGPOOL'].append(string)
-        count += 1
-        config.set_value('LASTSTRINGLEN', str_len)
-    config.set_value('LASTSTRINGINDEX', config.get_value('STRINGCHUNKEND'))
+                try:
+                    string = ApUtils.read_asc(data[str_index + 2:str_index + 2 + str_len * 2])\
+                        .encode("utf-8").decode('unicode_escape')
+                except:
+                    string = "String resolve error !!"
+            config.set_value('STRINGCHUNKEND', str_index + 2 + str_len * 2 + 2)
+            ApUtils.apprint(" [StringPool][" + str(count) + "]" + string)
+            config.global_list['STRINGPOOL'].append(string)
+            count += 1
+            config.set_value('LASTSTRINGLEN', str_len)
+        config.set_value('LASTSTRINGINDEX', config.get_value('STRINGCHUNKEND'))
+    elif config.get_value('XMLFLAG') == 1:
+        for index in config.global_list['STRINGOFFSETS']:
+            str_index = pc + int(ApUtils.printhex(config.get_value('STRINGPOOLOFFSET')), 16) + int(ApUtils.printhex(index),
+                                                                                                   16)
+            str_len = int(ApUtils.printhex(ApUtils.little_endian(data[str_index:str_index + 1])), 16)
+            # utf-8编码
+            try:
+                string = ApUtils.read_asc(data[str_index + 2:str_index + 2 + str_len ])\
+                    .encode("utf-8").decode('unicode_escape')
+            except:
+                try:
+                    string = ApUtils.read_asc(data[str_index + 2:str_index + 2 + str_len])\
+                        .encode("utf-8").decode('unicode_escape')
+                except:
+                    string = "String resolve error !!"
+            config.set_value('STRINGCHUNKEND', str_index + 2 + str_len  + 1)
+            ApUtils.apprint(" [StringPool][" + str(count) + "]" + string)
+            config.global_list['STRINGPOOL'].append(string)
+            count += 1
+            config.set_value('LASTSTRINGLEN', str_len)
+        config.set_value('LASTSTRINGINDEX', config.get_value('STRINGCHUNKEND'))
+    else:
+        ApUtils.apprint("[String]XMLFLAG is Wrong!")
+        exit(-1)
 
 
 # 解析ResourceId Chunk
