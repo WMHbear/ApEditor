@@ -119,7 +119,7 @@ def am_stringchunk(data,pc):
     elif config.get_value('XMLFLAG') == 1:
         for index in config.global_list['STRINGOFFSETS']:
             str_index = pc + int(ApUtils.printhex(config.get_value('STRINGPOOLOFFSET')),16) + int(ApUtils.printhex(index),16)
-            str_len = int(ApUtils.printhex(ApUtils.little_endian(data[str_index:str_index+1])),16)
+            str_len = int(ApUtils.printhex(ApUtils.little_endian(data[str_index+1:str_index+2])),16)
             #utf-8编码
             try:
                 string = ApUtils.read_asc(data[str_index + 2:str_index + 2 + str_len]).decode("utf-8")
