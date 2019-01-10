@@ -1,6 +1,6 @@
 # ApEditor
 
-Application Name修改器（Python2、3）
+Application Name修改器（Rebuild...）
 
 ## 项目介绍
 
